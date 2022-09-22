@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import resolve, reverse
-
 from recipes import views
+
 
 # Create your tests here.
 class RecipeViewsTest(TestCase):
@@ -20,3 +20,11 @@ class RecipeViewsTest(TestCase):
             reverse('recipes:recipe', kwargs={'id': 1})
         )
         self.assertIs(view.func, views.recipe)
+    
+    def test_recipe_home_view_returns_status_code_200_ok(self):
+        response= self.client.get(reverse('recipes:home'))
+        self.assertEquals(response.status_code, 200)
+    
+    def test_recipe_home_view_loads_correct_template(self):
+        response = self.client.get(reverse('recipes:home'))
+        self.assertTemplateUsed(response, 'recipes/pages/home.html')
