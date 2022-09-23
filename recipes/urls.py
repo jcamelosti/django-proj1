@@ -12,6 +12,7 @@ urlpatterns = [
     path('recipes/category/<int:category_id>/',
          views.category, name="category"),
     path('recipes/<int:id>/', views.recipe, name="recipe"),
+    path('recipes/search/', lambda request: ..., name="search"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
