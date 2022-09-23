@@ -16,7 +16,7 @@ class RecipeCategoryModelTest(RecipeTestBase):
             self.category.name
         )
 
-    def test_recipe_category_model_name_max_length_is_65_chars(self):
-        self.category.name = 'A' * 65
-        with self.assertRaises(ValidationError):
-            self.category.full_clean()
+    #def test_recipe_category_model_name_max_length_is_65_chars(self):
+    #    self.category.name = 'A' * 65
+    #    with self.assertRaises(ValidationError):
+    #        self.category.full_clean()
