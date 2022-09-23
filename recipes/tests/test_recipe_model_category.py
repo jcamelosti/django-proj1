@@ -1,4 +1,3 @@
-
 from django.core.exceptions import ValidationError
 
 from .test_recipe_base import RecipeTestBase
