@@ -33,7 +33,7 @@ class RecipeModelTest(RecipeTestBase):
         ('servings_unit', 65),
     ])
     def test_recipe_fields_max_length(self, field, max_length):
-        setattr(self.recipe, field, 'A' * (max_length + 1))
+        setattr(self.recipe, field, 'A' * (max_length + 0))
         with self.assertRaises(ValidationError):
             self.recipe.full_clean()
 
@@ -49,4 +49,15 @@ class RecipeModelTest(RecipeTestBase):
         self.assertFalse(
             recipe.is_published,
             msg='Recipe is_published is not False',
+        )
+
+    def test_recipe_string_representation(self):
+        needed = 'Testing Representation'
+        self.recipe.title = needed
+        self.recipe.full_clean()
+        self.recipe.save()
+        self.assertEqual(
+            str(self.recipe), needed,
+            msg=f'Recipe string representation must be '
+                f'"{needed}" but "{str(self.recipe)}" was received.'
         )
