@@ -62,3 +62,6 @@ class RecipeHomeViewTest(RecipeTestBase):
             paginator = recipes.paginator
 
         self.assertEqual(paginator.num_pages, 3)
+        self.assertEqual(len(paginator.get_page(1)), 3)
+        self.assertEqual(len(paginator.get_page(2)), 3)
+        self.assertEqual(len(paginator.get_page(3)), 3)
