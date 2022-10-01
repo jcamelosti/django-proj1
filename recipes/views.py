@@ -1,5 +1,6 @@
 import os
 
+from django.contrib import messages
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_list_or_404, get_object_or_404, render
@@ -70,6 +71,8 @@ def recipe(request, id):
 
 
 def search(request):
+    messages.success(request, 'teste')
+
     search_term = request.GET.get('q', '').strip()
 
     if not search_term:
