@@ -52,7 +52,7 @@ class RecipeHomeViewTest(RecipeTestBase):
         )
 
     def test_recipe_home_is_paginated(self):
-        for i in range(8):
+        for i in range(9):
             kwargs = {'slug': f'r{i}', 'author_data': {'username': f'u{i}'}}
             self.make_recipe(**kwargs)
 
