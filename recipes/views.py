@@ -18,6 +18,11 @@ def home(request):
 
     page_obj, pagination_range = make_pagination(request, recipes, PER_PAGE)
 
+    messages.error(request, 'teste')
+    messages.info(request, 'teste')
+    messages.warning(request, 'teste')
+    messages.success(request, 'teste')
+
     return render(request, 'recipes/pages/home.html', context={
         'recipes': page_obj,
         'pagination_range': pagination_range
@@ -71,8 +76,6 @@ def recipe(request, id):
 
 
 def search(request):
-    messages.success(request, 'teste')
-
     search_term = request.GET.get('q', '').strip()
 
     if not search_term:
