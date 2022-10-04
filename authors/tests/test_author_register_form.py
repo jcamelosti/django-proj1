@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from authors.forms import RegisterForm
 from django.test import TestCase as DjangoTestCase
-from django.urls import resolve, reverse
+from django.urls import reverse
 from parameterized import parameterized
 
 
@@ -15,15 +15,16 @@ class AuthorRegisterFormUnitTest(TestCase):
         ('password', 'Type your password'),
         ('password2', 'Repeat your password'),
     ])
-    def test_first_name_placeholder_is_correct(self, field, placeholder):
+    def test_fields_placeholder(self, field, placeholder):
         form = RegisterForm()
         current_placeholder = form[field].field.widget.attrs['placeholder']
         self.assertEqual(current_placeholder, placeholder)
 
     @parameterized.expand([
         ('username', (
-            'Obrigatório. 150 caracteres ou menos. '
-            'Letras, números e @/./+/-/_ apenas.')),
+            'Username must have letters, numbers or one of those @.+-_. '
+            'The length should be between 4 and 150 characters.'
+        )),
         ('email', 'The e-mail must be valid.'),
         ('password', (
             'Password must have at least one uppercase letter, '
@@ -57,8 +58,8 @@ class AuthorRegisterFormIntegrationTest(DjangoTestCase):
             'first_name': 'first',
             'last_name': 'last',
             'email': 'email@anyemail.com',
-            'password': 'Str0ngP@ssword1',
-            'password2': 'Str0ngP@ssword1',
+            'password': '1',
+            'password2': '1',
         }
         return super().setUp(*args, **kwargs)
 
@@ -75,7 +76,7 @@ class AuthorRegisterFormIntegrationTest(DjangoTestCase):
         url = reverse('authors:create')
         response = self.client.post(url, data=self.form_data, follow=True)
 
-        # self.assertIn(msg, response.content.decode('utf-8'))
+        self.assertIn(msg, response.content.decode('utf-8'))
         self.assertIn(msg, response.context['form'].errors.get(field))
 
     def test_username_field_min_length_should_be_4(self):
@@ -136,8 +137,3 @@ class AuthorRegisterFormIntegrationTest(DjangoTestCase):
         response = self.client.post(url, data=self.form_data, follow=True)
 
         self.assertNotIn(msg, response.content.decode('utf-8'))
-
-    def test_send_get_request_to_registration_create_view_returns_404(self):
-        url = reverse('authors:create')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
