@@ -13,7 +13,7 @@ def register_view(request):
     form = RegisterForm(register_form_data)
     return render(request, 'authors/pages/register_view.html', {
         'form': form,
-        'form_action': reverse('authors:create'),
+        'form_action': reverse('authors:register_create'),
     })
 
 
@@ -32,6 +32,7 @@ def register_create(request):
         messages.success(request, 'Your user is created, please log in.')
 
         del (request.session['register_form_data'])
+        return redirect(reverse('authors:login'))
 
     return redirect('authors:register')
 
@@ -71,10 +72,13 @@ def login_create(request):
 @login_required(login_url='authors:login', redirect_field_name='next')
 def logout_view(request):
     if not request.POST:
+        messages.error(request, 'Invalid logout request')
         return redirect(reverse('authors:login'))
 
     if request.POST.get('username') != request.user.username:
+        messages.error(request, 'Invalid logout user')
         return redirect(reverse('authors:login'))
 
+    messages.success(request, 'Logged out successfully')
     logout(request)
     return redirect(reverse('authors:login'))
