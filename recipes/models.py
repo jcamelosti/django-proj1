@@ -42,7 +42,7 @@ class Recipe(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            slug = f'{slugify(self.title)}'
+            slug = f'{slugify(self.title)}'  # slug no create
             self.slug = slug
 
         return super().save(*args, **kwargs)
