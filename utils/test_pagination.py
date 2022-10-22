@@ -49,6 +49,7 @@ class PaginationTest(TestCase):
 
     def test_make_sure_middle_ranges_are_correct(self):
         # Current page = 10 - Qty Page = 2 - Middle Page = 2
+        # HERE RANGE SHOULD CHANGE
         pagination = make_pagination_range(
             page_range=list(range(1, 21)),
             qty_pages=4,
@@ -57,6 +58,7 @@ class PaginationTest(TestCase):
         self.assertEqual([9, 10, 11, 12], pagination)
 
         # Current page = 14 - Qty Page = 2 - Middle Page = 2
+        # HERE RANGE SHOULD CHANGE
         pagination = make_pagination_range(
             page_range=list(range(1, 21)),
             qty_pages=4,
@@ -66,6 +68,7 @@ class PaginationTest(TestCase):
 
     def test_make_pagination_range_is_static_when_last_page_is_next(self):
         # Current page = 18 - Qty Page = 2 - Middle Page = 2
+        # HERE RANGE SHOULD CHANGE
         pagination = make_pagination_range(
             page_range=list(range(1, 21)),
             qty_pages=4,
@@ -74,6 +77,7 @@ class PaginationTest(TestCase):
         self.assertEqual([17, 18, 19, 20], pagination)
 
         # Current page = 19 - Qty Page = 2 - Middle Page = 2
+        # HERE RANGE SHOULD CHANGE
         pagination = make_pagination_range(
             page_range=list(range(1, 21)),
             qty_pages=4,
@@ -82,6 +86,7 @@ class PaginationTest(TestCase):
         self.assertEqual([17, 18, 19, 20], pagination)
 
         # Current page = 20 - Qty Page = 2 - Middle Page = 2
+        # HERE RANGE SHOULD CHANGE
         pagination = make_pagination_range(
             page_range=list(range(1, 21)),
             qty_pages=4,
@@ -90,6 +95,7 @@ class PaginationTest(TestCase):
         self.assertEqual([17, 18, 19, 20], pagination)
 
         # Current page = 21 - Qty Page = 2 - Middle Page = 2
+        # HERE RANGE SHOULD CHANGE
         pagination = make_pagination_range(
             page_range=list(range(1, 21)),
             qty_pages=4,
