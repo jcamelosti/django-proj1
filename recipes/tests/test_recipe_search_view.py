@@ -1,52 +1,104 @@
-from django.urls import resolve, reverse
-from recipes import views
+import os
 
-from .test_recipe_base import RecipeTestBase
+from django.db.models import Q
+from django.http.response import Http404
+from django.shortcuts import get_object_or_404, render
+from django.views.generic import ListView
+from recipes.models import Recipe
+from utils.pagination import make_pagination
+
+PER_PAGE = int(os.environ.get('PER_PAGE', 6))
 
 
-class RecipeSearchViewTest(RecipeTestBase):
-    def test_recipe_search_uses_correct_view_function(self):
-        resolved = resolve(reverse('recipes:search'))
-        self.assertIs(resolved.func, views.search)
+class RecipeListViewBase(ListView):
+    model = Recipe
+    context_object_name = 'recipes'
+    ordering = ['-id']
+    template_name = 'recipes/pages/home.html'
 
-    def test_recipe_search_loads_correct_template(self):
-        response = self.client.get(reverse('recipes:search') + '?q=teste')
-        self.assertTemplateUsed(response, 'recipes/pages/search.html')
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.filter(
+            is_published=True,
+        )
+        return qs
 
-    def test_recipe_search_raises_404_if_no_search_term(self):
-        url = reverse('recipes:search')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        page_obj, pagination_range = make_pagination(
+            self.request,
+            ctx.get('recipes'),
+            PER_PAGE
+        )
+        ctx.update(
+            {'recipes': page_obj, 'pagination_range': pagination_range}
+        )
+        return ctx
 
-    def test_recipe_search_term_is_on_page_title_and_escaped(self):
-        url = reverse('recipes:search') + '?q=<Teste>'
-        response = self.client.get(url)
-        self.assertIn(
-            'Search for &quot;&lt;Teste&gt;&quot;',
-            response.content.decode('utf-8')
+
+class RecipeListViewHome(RecipeListViewBase):
+    template_name = 'recipes/pages/home.html'
+
+
+class RecipeListViewCategory(RecipeListViewBase):
+    template_name = 'recipes/pages/category.html'
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+
+        ctx.update({
+            'title': f'{ctx.get("recipes")[0].category.name} - Category | '
+        })
+
+        return ctx
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.filter(
+            category__id=self.kwargs.get('category_id')
         )
 
-    def test_recipe_search_can_find_recipe_by_title(self):
-        title1 = 'This is recipe one'
-        title2 = 'This is recipe two'
+        if not qs:
+            raise Http404()
 
-        recipe1 = self.make_recipe(
-            slug='one', title=title1, author_data={'username': 'one'}
+        return qs
+
+
+class RecipeListViewSearch(RecipeListViewBase):
+    template_name = 'recipes/pages/search.html'
+
+    def get_queryset(self, *args, **kwargs):
+        search_term = self.request.GET.get('q', '')
+
+        if not search_term:
+            raise Http404()
+
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.filter(
+            Q(
+                Q(title__icontains=search_term) |
+                Q(description__icontains=search_term),
+            )
         )
-        recipe2 = self.make_recipe(
-            slug='two', title=title2, author_data={'username': 'two'}
-        )
+        return qs
 
-        search_url = reverse('recipes:search')
-        response1 = self.client.get(f'{search_url}?q={title1}')
-        response2 = self.client.get(f'{search_url}?q={title2}')
-        response_both = self.client.get(f'{search_url}?q=this')
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        search_term = self.request.GET.get('q', '')
 
-        self.assertIn(recipe1, response1.context['recipes'])
-        self.assertNotIn(recipe2, response1.context['recipes'])
+        ctx.update({
+            'page_title': f'Search for "{search_term}" |',
+            'search_term': search_term,
+            'additional_url_query': f'&q={search_term}',
+        })
 
-        self.assertIn(recipe2, response2.context['recipes'])
-        self.assertNotIn(recipe1, response2.context['recipes'])
+        return ctx
 
-        self.assertIn(recipe1, response_both.context['recipes'])
-        self.assertIn(recipe2, response_both.context['recipes'])
+
+def recipe(request, id):
+    recipe = get_object_or_404(Recipe, pk=id, is_published=True,)
+
+    return render(request, 'recipes/pages/recipe-view.html', context={
+        'recipe': recipe,
+        'is_detail_page': True,
+    })
